@@ -20,8 +20,6 @@ class CommissionsCalculator
     COMMISSION_ROLES.each_with_object({}) { |role, res| res[role] = send(role) }
   end
 
-  private
-
   def total_commissions
     @total_commissions ||= (price * COMMISSION_RATE).to_i
   end
