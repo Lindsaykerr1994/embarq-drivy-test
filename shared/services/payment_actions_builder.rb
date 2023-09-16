@@ -12,12 +12,15 @@ class PaymentActionsBuilder
     "assistance": 'credit',
     "drivy": 'credit'
   }.freeze
+  TO_OWNER_OPTION = %w[gps baby_seat].freeze
+  TO_DRIVY_OPTION = %w[additional_insurance].freeze
 
-  attr_reader :rental, :car
+  attr_reader :rental, :car, :options
 
   def initialize(args)
     @rental = args[:rental]
     @car = args[:car]
+    @options = args.fetch(:options, {})
   end
 
   def call
@@ -30,11 +33,15 @@ class PaymentActionsBuilder
   end
 
   def driver_fee
-    price
+    price + option_delegation(TO_OWNER_OPTION + TO_DRIVY_OPTION)
   end
 
   def owner_fee
-    price - commissions.total_commissions
+    price - commissions.total_commissions + option_delegation(TO_OWNER_OPTION)
+  end
+
+  def drivy_fee
+    commissions.drivy_fee + option_delegation(TO_DRIVY_OPTION)
   end
 
   private
@@ -47,5 +54,9 @@ class PaymentActionsBuilder
 
   def commissions
     @commissions ||= CommissionsCalculator.new(rental.total_days, price)
+  end
+
+  def option_delegation(types)
+    types.sum { |type| options.fetch(type, 0) }
   end
 end
