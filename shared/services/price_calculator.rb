@@ -11,7 +11,7 @@ class PriceCalculator
   end
 
   def total_price
-    price_by_distance + price_by_day
+    (price_by_distance + price_by_day).to_i
   end
 
   def price_by_distance
